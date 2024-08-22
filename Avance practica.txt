@@ -1,0 +1,24 @@
+Avance 14 Agosto
+
+-Se crea la interfaz del dosímetro y se tiene los siguientes parámetros para el escaneo:
+	1.-Área a escanear (cm2)
+	2.-Intervalo de movimiento (cm)
+	3.-Tiempo entre movimientos (ms)
+
+-Se tienen las opciones de:
+	1.-Calibrar (falta programar)
+	2.-Resetear (falta programar)
+	3.-Iniciar Escaneo
+
+-Se crea la función de iniciar escaneo
+	-Saca los datos de área, intervalo de tiempo y de movimiento de la interfaz grafica.
+	-Chequea que este conectado al Arduino
+	-Manda los datos codificados hacia el Arduino
+
+-El programa funciona y conecta pero gira solo en Y e gira poco, muy poco, los ejes de X no se mueve ninguno, quizás el problema esta en el intervalo de cm.
+
+-Al cambiar el tiempo entre movimientos si se le ponen 200 (ms) gira durante 11 segundos pero si se le ponen 400 (ms) gira durante 22 segundos aprox y si colocamos 100 ms gira durante aprox 8 segundos.
+
+-Hay que hacer que giren al mismo tiempo.
+-Reconocer el COM de entrada para ejecutarlo sin problemas en distintos PC
+-Poder moverlo unidad por unidad en la interfaz
