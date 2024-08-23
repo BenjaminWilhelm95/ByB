@@ -22,3 +22,5 @@ Avance 14 Agosto
 -Hay que hacer que giren al mismo tiempo.
 -Reconocer el COM de entrada para ejecutarlo sin problemas en distintos PC
 -Poder moverlo unidad por unidad en la interfaz
+
+
