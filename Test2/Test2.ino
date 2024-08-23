@@ -1,3 +1,4 @@
+#include <Module_GRBL_13.2.h>
 #include <AccelStepper.h>
 
 // Definir pines para el primer motor (Motor 1) - Eje X
@@ -38,41 +39,58 @@ void setup() {
   stepper3.setAcceleration(1000);
 
   Serial.println("Listo para recibir comandos.");
+  // Variables para almacenar los datos
+float currentX = 0;
+float currentY = 0;
+bool isMoving = false;
 }
 
 void loop() {
-  if (Serial.available() > 0) { //Verifica si hay datos disponibles en el puerto serial
-    String input = Serial.readStringUntil('\n');//Lee la cadena de caracteres enviada, se almacena en input
+  if (Serial.available() > 0) {
+    String input = Serial.readStringUntil('\n');
 
-    if (input.startsWith("S:")) {//Input empieza con S?
-      // Parsear el comando recibido
-      input.remove(0, 2);// Elimina los 2 primeros caracteres
+    if (input.startsWith("S:")) {
+      input.remove(0, 2);
       float area_x = input.substring(0, input.indexOf(':')).toFloat();
       input = input.substring(input.indexOf(':') + 1);
       float area_y = input.substring(0, input.indexOf(':')).toFloat();
       input = input.substring(input.indexOf(':') + 1);
-      float intervalo_cm = input.substring(0, input.indexOf(':')).toFloat(); //Distancia que se mueve el motor paso a paso
-      float intervalo_tiempo = input.substring(input.indexOf(':') + 1).toFloat();  //Tiempo entre movimientos en milisegundos
+      float intervalo_cm = input.substring(0, input.indexOf(':')).toFloat();
+      float intervalo_tiempo = input.substring(input.indexOf(':') + 1).toFloat();
 
-      // Calcular los pasos necesarios
-      long steps_x = area_x / intervalo_cm; //Si area X = 10cm e intervalo de mov = 1cm, entonces se requieren 10 pasos
+      long steps_x = area_x / intervalo_cm;
       long steps_y = area_y / intervalo_cm;
 
-           // Configurar los motores para moverse al mismo tiempo
       stepper1.moveTo(steps_x);
       stepper2.moveTo(steps_x);
       stepper3.moveTo(steps_y);
 
-      // Mover los motores simultáneamente
       while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0 || stepper3.distanceToGo() != 0) {
-        // Ejecutar los motores de X juntos
         if (stepper1.distanceToGo() != 0) stepper1.run();
         if (stepper2.distanceToGo() != 0) stepper2.run();
-
-        // Mover el motor de Y
         if (stepper3.distanceToGo() != 0) stepper3.run();
       }
       Serial.println("Movimiento completado.");
+    } else if (input == "GET_DATA") { // Comando para obtener datos
+      enviarDatos();
     }
   }
 }
+void enviarDatos() {
+  // Obtener las posiciones actuales de los motores
+  long posicion_x1 = stepper1.currentPosition();
+  long posicion_x2 = stepper2.currentPosition();
+  long posicion_y = stepper3.currentPosition();
+
+  // Obtener el estado de los switches de límite
+  bool estado_limit_x = digitalRead(LIMIT_SWITCH_PIN1) == LOW;
+  bool estado_limit_y = digitalRead(LIMIT_SWITCH_PIN2) == LOW;
+
+  // Enviar los datos por el puerto serial
+  Serial.print("PX1:"); Serial.print(posicion_x1);
+  Serial.print(",PX2:"); Serial.print(posicion_x2);
+  Serial.print(",PY:"); Serial.print(posicion_y);
+  Serial.print(",LX:"); Serial.print(estado_limit_x);
+  Serial.print(",LY:"); Serial.println(estado_limit_y);
+}
+//
