@@ -20,5 +20,50 @@ Avance 14 Agosto
 -Al cambiar el tiempo entre movimientos si se le ponen 200 (ms) gira durante 11 segundos pero si se le ponen 400 (ms) gira durante 22 segundos aprox y si colocamos 100 ms gira durante aprox 8 segundos.
 
 -Hay que hacer que giren al mismo tiempo.
--Reconocer el COM de entrada para ejecutarlo sin problemas en distintos PC
+-Reconocer el COM de entrada para ejecutarlo sin problemas en distintos PC (Solucionado)
 -Poder moverlo unidad por unidad en la interfaz
+
+Avance 20 de agosto (Benja)
+
+-Reconocer el COM de entrada para ejecutarlo sin problemas en distintos PC (Solucionado)
+	-Se crea una variable que incluya distintos COM
+
+Avance 21 de agosto
+
+-Se piden nuevos requerimientos:
+	-Mantener un registro de los barridos que se hacen en un txt
+-Se elimina 
+	stepper1.setMaxSpeed(intervalo_cm * 1000 / intervalo_tiempo); //Cuantos pasos por segundo deben darse  para cubrir la distancia en el tiempo
+      stepper2.setMaxSpeed(intervalo_cm * 1000 / intervalo_tiempo);
+      stepper3.setMaxSpeed(intervalo_cm * 1000 / intervalo_tiempo);
+
+-Se prueba el Test2 de Arduino, Test1 de python y funciona correctamente en los ejes X, los parámetros entregados son 
+	Distancia X: 300
+	Distancia Y:0
+	cm:1
+	ms:1 
+Se observa que al dejar los cm en 1, se mueven al menos a la par(al menos perceptiblemente, milimétricamente no se), pero mientras mas se aumente este valor los motores giran uno y después el otro y demora mas la vuelta de cada motor.
+
+100 ms = 12 seg
+1 ms = 12 seg
+No se observa variación al cambiar el tiempo entre movimientos, revisar si es necesario este parámetro igual que el cm
+
+Los motores al iniciar el recorrido se echan para atrás y luego avanzan.
+
+Al usar Test2 de Arduino y Test2 de Python no funciona correctamente ya que en Python reconoce un puerto distinto al conectado en el usb.
+	Observación: Se tiene conectado por bluetooth unos audífonos que podrían estar causando error
+
+Avance 22 de agosto
+
+-Los fines de carrera o switch serán en donde este el 0,0
+-Benja arregla el tema de los puertos, ahora reconoce cualquier puerto.
+
+Avance 23 de agosto
+
+-G28 calibracion
+-G0 mov lineal
+-G1
+-G90 Posición absoluta
+-G91 posición relativa
+
+-Hacer una interfaz sencilla que sea un botón para abrir una compuerta, otro botón para cerrar y otro botón que añada tiempo.
