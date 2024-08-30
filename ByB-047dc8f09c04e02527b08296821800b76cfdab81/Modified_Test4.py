@@ -1,10 +1,12 @@
 import tkinter as tk
 from tkinter import messagebox
-from tkinter import ttk
 import serial
 import serial.tools.list_ports
+from tkinter import ttk
 
 ser = None
+x_pos = 0
+y_pos = 0
 
 def find_arduino():
     ports = serial.tools.list_ports.comports()
@@ -33,15 +35,24 @@ def save_reading(x, y, reading):
     with open('radiation_readings.txt', 'a') as file:
         file.write(f"X: {x}, Y: {y}, PDD: {reading}\n")
 
+def actualizar_posiciones(x, y):
+    global x_pos, y_pos
+    x_pos += x
+    y_pos += y
+    label_x.config(text=f"X: {x_pos}")
+    label_y.config(text=f"Y: {y_pos}")
+
 def enviar_comando(comando, x, y):
-    # Envía un comando G-code al Arduino.
     if ser and ser.is_open:
-        comando_completo = comando + '\n'  # Añadir nueva línea al final del comando
-        ser.write(comando_completo.encode())  # Enviar el comando como bytes
-        respuesta = ser.readline().decode().strip()  # Leer la respuesta del Arduino
+        comando_completo = comando + '\n'
+        ser.write(comando_completo.encode())
+        respuesta = ser.readline().decode().strip()
         print("Respuesta del Arduino: {}".format(respuesta))
-        if respuesta:  # Check if there is a valid response
-            save_reading(x, y, respuesta)  # Guardar la respuesta como PDD
+        if respuesta:
+            save_reading(x_pos, y_pos, respuesta)
+        actualizar_posiciones(x, y)
+        if not messagebox.askyesno("Continuar", "¿Quieres seguir con el siguiente barrido?"):
+            root.quit()
     else:
         messagebox.showwarning("Advertencia", "No hay conexión con el puerto serial.")
 
@@ -83,71 +94,75 @@ def y100_negativo():
     enviar_comando('G91\nG0 X0 Y-100\nG90', 0, -100)
 
 def calibrar():
-    # Devuelve el motor a la posición de origen (0,0).
- enviar_comando('G90')  # Asegurarse de que estamos en modo absoluto
- enviar_comando('G0 X0 Y0 Z0')
+    enviar_comando('G91\nG0 X0 Y0\nG90', -x_pos, -y_pos)
 
 def resetear():
     if ser:
-        ser.write(b'R')  # Enviar comando de reseteo al Arduino
+        ser.write(b'R')
         messagebox.showinfo("Reseteo", "Reseteo en proceso...")
     else:
         messagebox.showwarning("Advertencia", "No hay conexión con el puerto serial.")
 
-# Crear la ventana principal
+# Crear la interfaz gráfica
 root = tk.Tk()
-root.title("Control de Dosímetro")
-root.geometry("650x500")
+root.title("Control de Máquina")
+
+# Etiquetas para mostrar las posiciones
+label_x = ttk.Label(root, text=f"X: {x_pos}")
+label_x.grid(row=0, column=5, padx=10, pady=10)
+label_y = ttk.Label(root, text=f"Y: {y_pos}")
+label_y.grid(row=1, column=5, padx=10, pady=10)
 
 # Botones
-btn_calibrar = ttk.Button(root, text="Calibrar (Homing)",  command=calibrar)
+btn_calibrar = ttk.Button(root, text="Calibrar (Homing)", command=calibrar)
 btn_calibrar.grid(row=8, column=3, padx=10, pady=5)
 
-btn_resetear = ttk.Button(root, text="Resetear",style='primary.TButton', command=resetear)
+btn_resetear = ttk.Button(root, text="Resetear", style='primary.TButton', command=resetear)
 btn_resetear.grid(row=8, column=4, padx=10, pady=5)
 
-btn_iniciar = ttk.Button(root, text="Iniciar Escaneo",style='primary.TButton')
+btn_iniciar = ttk.Button(root, text="Iniciar Escaneo", style='primary.TButton')
 btn_iniciar.grid(row=8, column=5, padx=10, pady=10)
 
 # Eje Y
-btn_iniciar = ttk.Button(root, text="100Y+", style='primary.Outline.TButton', command=y100_positivo)
-btn_iniciar.grid(row=1, column=4,padx=10, pady=10)
+btn_y100_pos = ttk.Button(root, text="100Y+", style='primary.Outline.TButton', command=y100_positivo)
+btn_y100_pos.grid(row=1, column=4, padx=10, pady=10)
 
-btn_iniciar = ttk.Button(root, text="10Y+", style='primary.Outline.TButton', command=y10_positivo)
-btn_iniciar.grid(row=2, column=4,padx=10, pady=10)
+btn_y10_pos = ttk.Button(root, text="10Y+", style='primary.Outline.TButton', command=y10_positivo)
+btn_y10_pos.grid(row=2, column=4, padx=10, pady=10)
 
-btn_iniciar = ttk.Button(root, text="1Y+", style='primary.Outline.TButton', command=y1_positivo)
-btn_iniciar.grid(row=3, column=4,padx=10, pady=10)
+btn_y1_pos = ttk.Button(root, text="1Y+", style='primary.Outline.TButton', command=y1_positivo)
+btn_y1_pos.grid(row=3, column=4, padx=10, pady=10)
 
-btn_iniciar = ttk.Button(root, text="1Y-", style='primary.Outline.TButton', command=y1_negativo)
-btn_iniciar.grid(row=5, column=4,padx=10, pady=10)
+btn_y1_neg = ttk.Button(root, text="1Y-", style='primary.Outline.TButton', command=y1_negativo)
+btn_y1_neg.grid(row=5, column=4, padx=10, pady=10)
 
-btn_iniciar = ttk.Button(root, text="10Y-", style='primary.Outline.TButton', command=y10_negativo)
-btn_iniciar.grid(row=6, column=4,padx=10, pady=10)
+btn_y10_neg = ttk.Button(root, text="10Y-", style='primary.Outline.TButton', command=y10_negativo)
+btn_y10_neg.grid(row=6, column=4, padx=10, pady=10)
 
-btn_iniciar = ttk.Button(root, text="100Y-", style='primary.Outline.TButton', command=y100_negativo)
-btn_iniciar.grid(row=7, column=4, padx=10, pady=10)
+btn_y100_neg = ttk.Button(root, text="100Y-", style='primary.Outline.TButton', command=y100_negativo)
+btn_y100_neg.grid(row=7, column=4, padx=10, pady=10)
 
-#Calibrar
-btn_iniciar = ttk.Button(root, text="Calibrar", style='primary.Outline.TButton', command=calibrar)
-btn_iniciar.grid(row=4, column=4, padx=10, pady=10,sticky="e")
+# Calibrar
+btn_calibrar = ttk.Button(root, text="Calibrar", style='primary.Outline.TButton', command=calibrar)
+btn_calibrar.grid(row=4, column=4, padx=10, pady=10, sticky="e")
 
 # Eje X
-btn_iniciar = ttk.Button(root, text="100X+", style='primary.Outline.TButton', command=x100_positivo)
-btn_iniciar.grid(row=4, column=7, padx=0, pady=0, sticky="w")
+btn_x100_pos = ttk.Button(root, text="100X+", style='primary.Outline.TButton', command=x100_positivo)
+btn_x100_pos.grid(row=4, column=7, padx=0, pady=0, sticky="w")
 
-btn_iniciar = ttk.Button(root, text="10X+", style='primary.Outline.TButton', command=x10_positivo)
-btn_iniciar.grid(row=4, column=6, padx=0, pady=0, sticky="w")
+btn_x10_pos = ttk.Button(root, text="10X+", style='primary.Outline.TButton', command=x10_positivo)
+btn_x10_pos.grid(row=4, column=6, padx=0, pady=0, sticky="w")
 
-btn_iniciar = ttk.Button(root, text="1X+", style='primary.Outline.TButton', command=x1_positivo)
-btn_iniciar.grid(row=4, column=5, padx=0, pady=0, sticky="w")
+btn_x1_pos = ttk.Button(root, text="1X+", style='primary.Outline.TButton', command=x1_positivo)
+btn_x1_pos.grid(row=4, column=5, padx=0, pady=0, sticky="w")
 
-btn_iniciar = ttk.Button(root, text="1X-", style='primary.Outline.TButton', command=x1_negativo)
-btn_iniciar.grid(row=4, column=3, padx=0, pady=0, sticky="w")
+btn_x1_neg = ttk.Button(root, text="1X-", style='primary.Outline.TButton', command=x1_negativo)
+btn_x1_neg.grid(row=4, column=3, padx=0, pady=0, sticky="w")
 
-btn_iniciar = ttk.Button(root, text="10X-", style='primary.Outline.TButton', command=x10_negativo)
-btn_iniciar.grid(row=4, column=2, padx=0, pady=0, sticky="w")
+btn_x10_neg = ttk.Button(root, text="10X-", style='primary.Outline.TButton', command=x10_negativo)
+btn_x10_neg.grid(row=4, column=2, padx=0, pady=0, sticky="w")
 
-btn_iniciar = ttk.Button(root, text="100X-", style='primary.Outline.TButton', command=x100_negativo)
-btn_iniciar.grid(row=4, column=1, padx=0, pady=0, sticky="w")
+btn_x100_neg = ttk.Button(root, text="100X-", style='primary.Outline.TButton', command=x100_negativo)
+btn_x100_neg.grid(row=4, column=1, padx=0, pady=0, sticky="w")
+
 root.mainloop()
