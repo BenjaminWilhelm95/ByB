@@ -94,7 +94,7 @@ def y100_negativo():
     enviar_comando('G91\nG0 X0 Y-100\nG90', 0, -100)
 
 def calibrar():
-    enviar_comando('G91\nG0 X0 Y0\nG90', -x_pos, -y_pos)
+    enviar_comando('G91\nG0 X0 Y0 Z0\nG90', 0, 0)
 
 def resetear():
     if ser:
