@@ -58,22 +58,22 @@ def enviar_comando(comando, x, y):
 
 # Funciones para los botones
 def x1_positivo():
-    enviar_comando('G91\nG0 X1 Y0\nG90', 1, 0)
+    enviar_comando('G91\nG0 X1 Z1\nG90', 1, 0)
 
 def x10_positivo():
-    enviar_comando('G91\nG0 X10 Y0\nG90', 10, 0)
+    enviar_comando('G91\nG0 X10 Z10\nG90', 10, 0)
 
 def x100_positivo():
-    enviar_comando('G91\nG0 X100 Y0\nG90', 100, 0)
+    enviar_comando('G91\nG0 X100 Z100\nG90', 100, 0)
 
 def x1_negativo():
-    enviar_comando('G91\nG0 X-1 Y0\nG90', -1, 0)
+    enviar_comando('G91\nG0 X-1 Z-1\nG90', -1, 0)
 
 def x10_negativo():
-    enviar_comando('G91\nG0 X-10 Y0\nG90', -10, 0)
+    enviar_comando('G91\nG0 X-10 Z-10\nG90', -10, 0)
 
 def x100_negativo():
-    enviar_comando('G91\nG0 X-100 Y0\nG90', -100, 0)
+    enviar_comando('G91\nG0 X-100 Z-100\nG90', -100, 0)
 
 def y1_positivo():
     enviar_comando('G91\nG0 X0 Y1\nG90', 0, 1)
