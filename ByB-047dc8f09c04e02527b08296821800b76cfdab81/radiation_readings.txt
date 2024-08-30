@@ -51,3 +51,53 @@ X: -30, Y: 0, PDD: ok
 X: -30, Y: -10, PDD: ok
 X: -30, Y: -20, PDD: ok
 X: -30, Y: -120, PDD: ok
+X: 1, Y: 0, PDD: Grbl 0.8c ['$' for help]
+X: 11, Y: 0, PDD: ok
+X: 21, Y: 0, PDD: ok
+X: 21, Y: 0, PDD: ok
+X: 21, Y: 0, PDD: ok
+X: 21, Y: 0, PDD: ok
+X: 21, Y: -10, PDD: ok
+X: 10, Y: 0, PDD: Grbl 0.8c ['$' for help]
+X: 10, Y: -10, PDD: ok
+X: 10, Y: -10, PDD: ok
+X: 10, Y: -10, PDD: ok
+X: 10, Y: -10, PDD: ok
+X: 0, Y: -10, PDD: Grbl 0.8c ['$' for help]
+X: 0, Y: -10, PDD: ok
+X: 10, Y: 0, PDD: Grbl 0.8c ['$' for help]
+X: 20, Y: 0, PDD: ok
+X: 10, Y: 0, PDD: Grbl 0.8c ['$' for help]
+X: 20, Y: 0, PDD: ok
+X: 19, Y: 0, PDD: ok
+X: 29, Y: 0, PDD: ok
+X: 39, Y: 0, PDD: ok
+X: 40, Y: 0, PDD: ok
+X: 50, Y: 0, PDD: ok
+X: 60, Y: 0, PDD: ok
+X: 60, Y: 10, PDD: ok
+X: 60, Y: 20, PDD: ok
+X: 10, Y: 0, PDD: Grbl 0.8c ['$' for help]
+X: 20, Y: 0, PDD: ok
+X: 10, Y: 0, PDD: Grbl 0.8c ['$' for help]
+X: 20, Y: 0, PDD: ok
+X: 20, Y: 10, PDD: ok
+X: 10, Y: 0, Z: 10, PDD: Grbl 0.8c ['$' for help]
+X: 20, Y: 0, Z: 20, PDD: ok
+X: 20, Y: 10, Z: 20, PDD: ok
+X: 0, Y: 0, Z: 0, PDD: ok
+X: 100, Y: 0, Z: 100, PDD: ok
+X: 100, Y: -10, Z: 100, PDD: ok
+X: 100, Y: -20, Z: 100, PDD: ok
+X: 100, Y: -30, Z: 100, PDD: ok
+X: 0, Y: 0, Z: 0, PDD: ok
+X: 0, Y: 0, Z: 0, PDD: ok
+X: 0, Y: 0, Z: 0, PDD: ok
+X: 0, Y: 0, Z: 0, PDD: ok
+X: 0, Y: 0, Z: 0, PDD: ok
+X: 0, Y: 0, Z: 0, PDD: ok
+X: 10, Y: 0, Z: 10, PDD: ok
+X: 10, Y: 10, Z: 10, PDD: ok
+X: 0, Y: 0, Z: 0, PDD: ok
+X: 10, Y: 0, Z: 10, PDD: ok
+X: 0, Y: 0, Z: 0, PDD: ok

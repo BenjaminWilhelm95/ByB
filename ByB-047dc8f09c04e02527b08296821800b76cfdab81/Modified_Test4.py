@@ -7,6 +7,7 @@ from tkinter import ttk
 ser = None
 x_pos = 0
 y_pos = 0
+z_pos = 0
 
 def find_arduino():
     ports = serial.tools.list_ports.comports()
@@ -31,74 +32,78 @@ if port:
 else:
     print("No se encontró ningún dispositivo conectado.")
 
-def save_reading(x, y, reading):
+def save_reading(x, y, z, reading):
     with open('radiation_readings.txt', 'a') as file:
-        file.write(f"X: {x}, Y: {y}, PDD: {reading}\n")
+        file.write(f"X: {x}, Y: {y}, Z: {z}, PDD: {reading}\n")
 
-def actualizar_posiciones(x, y):
-    global x_pos, y_pos
-    x_pos += x
-    y_pos += y
-    label_x.config(text=f"X: {x_pos}")
-    label_y.config(text=f"Y: {y_pos}")
-
-def enviar_comando(comando, x, y):
+def enviar_comando(comando, x, y, z):
+    global x_pos, y_pos, z_pos
+    # Envía un comando G-code al Arduino.
     if ser and ser.is_open:
-        comando_completo = comando + '\n'
-        ser.write(comando_completo.encode())
-        respuesta = ser.readline().decode().strip()
+        comando_completo = comando + '\n'  # Añadir nueva línea al final del comando
+        ser.write(comando_completo.encode())  # Enviar el comando como bytes
+        respuesta = ser.readline().decode().strip()  # Leer la respuesta del Arduino
         print("Respuesta del Arduino: {}".format(respuesta))
-        if respuesta:
-            save_reading(x_pos, y_pos, respuesta)
-        actualizar_posiciones(x, y)
-        if not messagebox.askyesno("Continuar", "¿Quieres seguir con el siguiente barrido?"):
-            root.quit()
+        if respuesta:  # Verifica si hay una respuesta válida
+            x_pos += x
+            y_pos += y
+            z_pos += z
+            update_labels()
+            save_reading(x_pos, y_pos, z_pos, respuesta)  # Guardar la respuesta como PDD
     else:
         messagebox.showwarning("Advertencia", "No hay conexión con el puerto serial.")
 
+def update_labels():
+    label_x.config(text=f"Posición X: {x_pos}")
+    label_y.config(text=f"Posición Y: {y_pos}")
+
 # Funciones para los botones
 def x1_positivo():
-    enviar_comando('G91\nG0 X1 Z1\nG90', 1, 0)
+    enviar_comando('G91\nG0 X1 Z1\nG90', 1, 0, 1)
 
 def x10_positivo():
-    enviar_comando('G91\nG0 X10 Z10\nG90', 10, 0)
+    enviar_comando('G91\nG0 X10 Z10\nG90', 10, 0, 10)
 
 def x100_positivo():
-    enviar_comando('G91\nG0 X100 Z100\nG90', 100, 0)
+    enviar_comando('G91\nG0 X100 Z100\nG90', 100, 0, 100)
 
 def x1_negativo():
-    enviar_comando('G91\nG0 X-1 Z-1\nG90', -1, 0)
+    enviar_comando('G91\nG0 X-1 Z-1\nG90', -1, 0, -1)
 
 def x10_negativo():
-    enviar_comando('G91\nG0 X-10 Z-10\nG90', -10, 0)
+    enviar_comando('G91\nG0 X-10 Z-10\nG90', -10, 0, -10)
 
 def x100_negativo():
-    enviar_comando('G91\nG0 X-100 Z-100\nG90', -100, 0)
+    enviar_comando('G91\nG0 X-100 Z-100\nG90', -100, 0, -100)
 
 def y1_positivo():
-    enviar_comando('G91\nG0 X0 Y1\nG90', 0, 1)
+    enviar_comando('G91\nG0 Y1\nG90', 0, 1, 0)
 
 def y10_positivo():
-    enviar_comando('G91\nG0 X0 Y10\nG90', 0, 10)
+    enviar_comando('G91\nG0 Y10\nG90', 0, 10, 0)
 
 def y100_positivo():
-    enviar_comando('G91\nG0 X0 Y100\nG90', 0, 100)
+    enviar_comando('G91\nG0 Y100\nG90', 0, 100, 0)
 
 def y1_negativo():
-    enviar_comando('G91\nG0 X0 Y-1\nG90', 0, -1)
+    enviar_comando('G91\nG0 Y-1\nG90', 0, -1, 0)
 
 def y10_negativo():
-    enviar_comando('G91\nG0 X0 Y-10\nG90', 0, -10)
+    enviar_comando('G91\nG0 Y-10\nG90', 0, -10, 0)
 
 def y100_negativo():
-    enviar_comando('G91\nG0 X0 Y-100\nG90', 0, -100)
+    enviar_comando('G91\nG0 Y-100\nG90', 0, -100, 0)
 
 def calibrar():
-    enviar_comando('G91\nG0 X0 Y0 Z0\nG90', 0, 0)
+    global x_pos, y_pos, z_pos
+    # Devuelve el motor a la posición de origen (0,0,0).
+    enviar_comando('G91\nG0 X-{} Y-{} Z-{}\nG90'.format(x_pos, y_pos, z_pos), -x_pos, -y_pos, -z_pos)
+    x_pos, y_pos, z_pos = 0, 0, 0
+    update_labels()
 
 def resetear():
     if ser:
-        ser.write(b'R')
+        ser.write(b'R')  # Enviar comando de reseteo al Arduino
         messagebox.showinfo("Reseteo", "Reseteo en proceso...")
     else:
         messagebox.showwarning("Advertencia", "No hay conexión con el puerto serial.")
