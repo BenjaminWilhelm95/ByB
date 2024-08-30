@@ -1,0 +1,51 @@
+Index: ../Avance practica.txt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>Avance 14 Agosto\r\n\r\n-Se crea la interfaz del dosímetro y se tiene los siguientes parámetros para el escaneo:\r\n\t1.-Área a escanear (cm2)\r\n\t2.-Intervalo de movimiento (cm)\r\n\t3.-Tiempo entre movimientos (ms)\r\n\r\n-Se tienen las opciones de:\r\n\t1.-Calibrar (falta programar)\r\n\t2.-Resetear (falta programar)\r\n\t3.-Iniciar Escaneo\r\n\r\n-Se crea la función de iniciar escaneo\r\n\t-Saca los datos de área, intervalo de tiempo y de movimiento de la interfaz grafica.\r\n\t-Chequea que este conectado al Arduino\r\n\t-Manda los datos codificados hacia el Arduino\r\n\r\n-El programa funciona y conecta pero gira solo en Y e gira poco, muy poco, los ejes de X no se mueve ninguno, quizás el problema esta en el intervalo de cm.\r\n\r\n-Al cambiar el tiempo entre movimientos si se le ponen 200 (ms) gira durante 11 segundos pero si se le ponen 400 (ms) gira durante 22 segundos aprox y si colocamos 100 ms gira durante aprox 8 segundos.\r\n\r\n-Hay que hacer que giren al mismo tiempo.\r\n-Reconocer el COM de entrada para ejecutarlo sin problemas en distintos PC\r\n-Poder moverlo unidad por unidad en la interfaz
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../Avance practica.txt b/../Avance practica.txt
+--- a/../Avance practica.txt	
++++ b/../Avance practica.txt	
+@@ -21,4 +21,8 @@
+ 
+ -Hay que hacer que giren al mismo tiempo.
+ -Reconocer el COM de entrada para ejecutarlo sin problemas en distintos PC
+--Poder moverlo unidad por unidad en la interfaz
+\ No newline at end of file
++-Poder moverlo unidad por unidad en la interfaz
++Para la compuerta:
++-motores lineales de 12v, un motor es para abrir y otro para cerrar, los pines están por ver.
++-Arduino uno con un puente h.
++-el tiempo en minutos.
+Index: .idea/vcs.xml
+===================================================================
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+new file mode 100644
+--- /dev/null	
++++ b/.idea/vcs.xml	
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="VcsDirectoryMappings">
++    <mapping directory="$PROJECT_DIR$/.." vcs="Git" />
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/modules.xml
+===================================================================
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+new file mode 100644
+--- /dev/null	
++++ b/.idea/modules.xml	
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectModuleManager">
++    <modules>
++      <module fileurl="file://$PROJECT_DIR$/.idea/Practica.iml" filepath="$PROJECT_DIR$/.idea/Practica.iml" />
++    </modules>
++  </component>
++</project>
+\ No newline at end of file
