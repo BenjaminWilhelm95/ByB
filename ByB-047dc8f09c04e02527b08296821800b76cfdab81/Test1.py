@@ -2,8 +2,12 @@ import tkinter as tk
 from tkinter import messagebox
 import serial
 import serial.tools.list_ports
+from tkinter import ttk
 
 ser = None
+x_pos = 0
+y_pos = 0
+
 def find_arduino():
     ports = serial.tools.list_ports.comports()
     for port in ports:
@@ -27,79 +31,172 @@ if port:
 else:
     print("No se encontró ningún dispositivo conectado.")
 
-# Función de calibración
-def calibrar():
-    global ser  # Asegúrate de declarar 'ser' como global aquí también
-    if ser:
-        ser.write(b'H')  # Enviar comando de homing al Arduino
-        messagebox.showinfo("Calibración", "Calibración en proceso. Los ejes se están moviendo al punto (0,0)...")
+def save_reading(x, y, reading):
+    with open('radiation_readings.txt', 'a') as file:
+        file.write(f"X: {x}, Y: {y}, PDD: {reading}\n")
+
+def enviar_comando(comando, x, y):
+    global x_pos, y_pos
+    if ser and ser.is_open:
+        comando_completo = comando + '\n'
+        ser.write(comando_completo.encode())
+        respuesta = ser.readline().decode().strip()
+        print("Respuesta del Arduino: {}".format(respuesta))
+        if respuesta:
+            save_reading(x, y, respuesta)
+        x_pos += x
+        y_pos += y
+        label_x.config(text=f"Posición X: {x_pos}")
+        label_y.config(text=f"Posición Y: {y_pos}")
     else:
         messagebox.showwarning("Advertencia", "No hay conexión con el puerto serial.")
 
-# Funciones para los botones
+# Funciones para los botones de movimiento
+def x1_positivo():
+    enviar_comando('G91\nG0 X1 Z1\nG90', 1, 0)
+
+def x10_positivo():
+    enviar_comando('G91\nG0 X10 Z10\nG90', 10, 0)
+
+def x100_positivo():
+    enviar_comando('G91\nG0 X100 Z100\nG90', 100, 0)
+
+def x1_negativo():
+    enviar_comando('G91\nG0 X-1 Z-1\nG90', -1, 0)
+
+def x10_negativo():
+    enviar_comando('G91\nG0 X-10 Z-10\nG90', -10, 0)
+
+def x100_negativo():
+    enviar_comando('G91\nG0 X-100 Z-100\nG90', -100, 0)
+
+def y1_positivo():
+    enviar_comando('G91\nG0 X0 Y1\nG90', 0, 1)
+
+def y10_positivo():
+    enviar_comando('G91\nG0 X0 Y10\nG90', 0, 10)
+
+def y100_positivo():
+    enviar_comando('G91\nG0 X0 Y100\nG90', 0, 100)
+
+def y1_negativo():
+    enviar_comando('G91\nG0 X0 Y-1\nG90', 0, -1)
+
+def y10_negativo():
+    enviar_comando('G91\nG0 X0 Y-10\nG90', 0, -10)
+
+def y100_negativo():
+    enviar_comando('G91\nG0 X0 Y-100\nG90', 0, -100)
+
+def calibrar():
+    global x_pos, y_pos
+    enviar_comando('G91\nG0 X{} Y{}\nG90'.format(-x_pos, -y_pos), -x_pos, -y_pos)
+    x_pos, y_pos = 0, 0
+    label_x.config(text=f"Posición X: {x_pos}")
+    label_y.config(text=f"Posición Y: {y_pos}")
+
 def resetear():
     if ser:
-        ser.write(b'R')  # Enviar comando de reseteo al Arduino
+        ser.write(b'R')
         messagebox.showinfo("Reseteo", "Reseteo en proceso...")
     else:
         messagebox.showwarning("Advertencia", "No hay conexión con el puerto serial.")
 
-def iniciar_escaneo():
-    area_x = entry_area_x.get()
-    area_y = entry_area_y.get()
-    intervalo_cm = entry_intervalo_cm.get()
-    intervalo_tiempo = entry_intervalo_tiempo.get()
+def mover_distancia_x(distancia):
+    enviar_comando(f'G91\nG0 X{distancia} Z{distancia}\nG90', distancia, 0)
 
-    try:
-        area_x = float(area_x)
-        area_y = float(area_y)
-        intervalo_cm = float(intervalo_cm)
-        intervalo_tiempo = float(intervalo_tiempo)
+def mover_distancia_y(distancia):
+    enviar_comando(f'G91\nG0 X0 Y{distancia}\nG90', 0, distancia)
 
-        if area_x <= 0 or area_y <= 0 or intervalo_cm <= 0 or intervalo_tiempo <= 0:
-            messagebox.showwarning("Advertencia", "Por favor, ingresa valores positivos.")
-            return
-
-        if ser:
-            # Enviar los valores al Arduino
-            command = f'S:{area_x}:{area_y}:{intervalo_cm}:{intervalo_tiempo}\n'
-            ser.write(command.encode())
-            messagebox.showinfo("Escaneo", f"Escaneo iniciado con área X: {area_x} cm², área Y: {area_y} cm², intervalo de {intervalo_cm} cm y tiempo de {intervalo_tiempo} ms.")
-        else:
-            messagebox.showwarning("Advertencia", "No hay conexión con el puerto serial.")
-    except ValueError:
-        messagebox.showwarning("Advertencia", "Por favor, ingresa valores numéricos válidos.")
-
-# Crear la ventana principal
+# Crear la interfaz gráfica
 root = tk.Tk()
-root.title("Control de Dosímetro")
+root.title("Control de Máquina")
 
-# Etiquetas y cuadros de texto
-tk.Label(root, text="Área X a escanear (cm²):").grid(row=0, column=0, padx=10, pady=5)
-entry_area_x = tk.Entry(root)
-entry_area_x.grid(row=0, column=1, padx=10, pady=5)
+# Labels para mostrar la posición actual
+label_x = tk.Label(root, text=f"Posición X: {x_pos}")
+label_x.grid(row=0, column=1, columnspan=2)
 
-tk.Label(root, text="Área Y a escanear (cm²):").grid(row=1, column=0, padx=10, pady=5)
-entry_area_y = tk.Entry(root)
-entry_area_y.grid(row=1, column=1, padx=10, pady=5)
+label_y = tk.Label(root, text=f"Posición Y: {y_pos}")
+label_y.grid(row=1, column=1, columnspan=2)
 
-tk.Label(root, text="Intervalo de movimiento (cm):").grid(row=2, column=0, padx=10, pady=5)
-entry_intervalo_cm = tk.Entry(root)
-entry_intervalo_cm.grid(row=2, column=1, padx=10, pady=5)
+# Entradas para mover a una distancia específica
+entry_distancia_x = tk.Entry(root)
+entry_distancia_x.grid(row=2, column=1)
+entry_distancia_x.insert(0, "0")
 
-tk.Label(root, text="Tiempo entre movimientos (ms):").grid(row=3, column=0, padx=10, pady=5)
-entry_intervalo_tiempo = tk.Entry(root)
-entry_intervalo_tiempo.grid(row=3, column=1, padx=10, pady=5)
+entry_distancia_y = tk.Entry(root)
+entry_distancia_y.grid(row=3, column=1)
+entry_distancia_y.insert(0, "0")
 
-# Botones
-btn_calibrar = tk.Button(root, text="Calibrar (Homing)", command=calibrar)
-btn_calibrar.grid(row=4, column=0, padx=10, pady=5)
+# Botones "+" y "-" para mover a la distancia especificada en X
+def incrementar_x():
+    mover_distancia_x(int(entry_distancia_x.get()))
 
-btn_resetear = tk.Button(root, text="Resetear", command=resetear)
-btn_resetear.grid(row=4, column=1, padx=10, pady=5)
+def decrementar_x():
+    mover_distancia_x(-int(entry_distancia_x.get()))
 
-btn_iniciar = tk.Button(root, text="Iniciar Escaneo", command=iniciar_escaneo)
-btn_iniciar.grid(row=5, column=0, columnspan=2, padx=10, pady=10)
+btn_x_mas = ttk.Button(root, text="+", command=incrementar_x)
+btn_x_mas.grid(row=2, column=2)
 
-# Ejecutar la interfaz
+btn_x_menos = ttk.Button(root, text="-", command=decrementar_x)
+btn_x_menos.grid(row=2, column=0)
+
+# Botones "+" y "-" para mover a la distancia especificada en Y
+def incrementar_y():
+    mover_distancia_y(int(entry_distancia_y.get()))
+
+def decrementar_y():
+    mover_distancia_y(-int(entry_distancia_y.get()))
+
+btn_y_mas = ttk.Button(root, text="+", command=incrementar_y)
+btn_y_mas.grid(row=3, column=2)
+
+btn_y_menos = ttk.Button(root, text="-", command=decrementar_y)
+btn_y_menos.grid(row=3, column=0)
+
+# Botones de control de movimientos estándar
+btn_calibrar = ttk.Button(root, text="Calibrar", command=calibrar)
+btn_calibrar.grid(row=4, column=4, padx=10, pady=5)
+
+btn_iniciar = ttk.Button(root, text="Iniciar Escaneo",style='primary.TButton')
+btn_iniciar.grid(row=8, column=0, padx=10, pady=10)
+
+# Eje Y
+btn_y100_positivo = ttk.Button(root, text="100Y+", style='primary.Outline.TButton', command=y100_positivo)
+btn_y100_positivo.grid(row=1, column=4, padx=10, pady=10)
+
+btn_y10_positivo = ttk.Button(root, text="10Y+", style='primary.Outline.TButton', command=y10_positivo)
+btn_y10_positivo.grid(row=2, column=4, padx=10, pady=10)
+
+btn_y1_positivo = ttk.Button(root, text="1Y+", style='primary.Outline.TButton', command=y1_positivo)
+btn_y1_positivo.grid(row=3, column=4, padx=10, pady=10)
+
+btn_y1_negativo = ttk.Button(root, text="1Y-", style='primary.Outline.TButton', command=y1_negativo)
+btn_y1_negativo.grid(row=5, column=4, padx=10, pady=10)
+
+btn_y10_negativo = ttk.Button(root, text="10Y-", style='primary.Outline.TButton', command=y10_negativo)
+btn_y10_negativo.grid(row=6, column=4, padx=10, pady=10)
+
+btn_y100_negativo = ttk.Button(root, text="100Y-", style='primary.Outline.TButton', command=y100_negativo)
+btn_y100_negativo.grid(row=7, column=4, padx=10, pady=10)
+
+# Eje X
+btn_x100_positivo = ttk.Button(root, text="100X+", style='primary.Outline.TButton', command=x100_positivo)
+btn_x100_positivo.grid(row=4, column=7, padx=0, pady=0, sticky="w")
+
+btn_x10_positivo = ttk.Button(root, text="10X+", style='primary.Outline.TButton', command=x10_positivo)
+btn_x10_positivo.grid(row=4, column=6, padx=0, pady=0, sticky="w")
+
+btn_x1_positivo = ttk.Button(root, text="1X+", style='primary.Outline.TButton', command=x1_positivo)
+btn_x1_positivo.grid(row=4, column=5, padx=0, pady=0, sticky="w")
+
+btn_x1_negativo = ttk.Button(root, text="1X-", style='primary.Outline.TButton', command=x1_negativo)
+btn_x1_negativo.grid(row=4, column=3, padx=0, pady=0, sticky="e")
+
+btn_x10_negativo = ttk.Button(root, text="10X-", style='primary.Outline.TButton', command=x10_negativo)
+btn_x10_negativo.grid(row=4, column=2, padx=0, pady=0, sticky="e")
+
+btn_x100_negativo = ttk.Button(root, text="100X-", style='primary.Outline.TButton', command=x100_negativo)
+btn_x100_negativo.grid(row=4, column=1, padx=0, pady=0, sticky="e")
+
 root.mainloop()
